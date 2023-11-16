@@ -1,12 +1,8 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
 
 function App() {
-  return (
-    <div className="App">
-      <button>Upload File</button>
-    </div>
-  );
+  const value = 'World';
+  return <div>Hello {value}</div>;
 }
 
 export default App;
