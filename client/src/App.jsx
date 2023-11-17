@@ -1,7 +1,18 @@
 import React from 'react';
+import FileUpload from './components/FileUpload';
 
 function App() {
-  return <div><button>Upoad File</button></div>;
+
+  const handleFileSubmit = (file) => {
+    // send file to backend
+    console.log("file submitted: " + file.name);
+  }
+
+  return (
+    <>
+      <FileUpload onFileSubmit={handleFileSubmit}/>
+    </>
+  );
 }
 
 export default App;
