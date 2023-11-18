@@ -11,14 +11,16 @@ function App() {
     const modelID = "prebuilt-document";
 
     const handleFileSubmit = async (file) => {
-        if (file.type !== "application/pdf") {
-            setUploadStatus("Please upload a PDF file");
+        const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg"];
+    
+        if (!allowedTypes.includes(file.type)) {
+            setUploadStatus("Please upload a PDF, JPG, or JPEG file");
             return;
         }
-
+    
         const formData = new FormData();
         formData.append("file", file);
-
+    
         try {
             setLoading(true);
             const response = await fetch(
@@ -43,6 +45,7 @@ function App() {
             setLoading(false);
         }
     };
+    
 
     const analyze = async (documentUrl) => {
         try {
