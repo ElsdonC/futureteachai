@@ -11,11 +11,6 @@ function App() {
     const modelID = "prebuilt-document";
 
     const handleFileSubmit = async (file) => {
-        if (file.type !== "application/pdf") {
-            setUploadStatus("Please upload a PDF file");
-            return;
-        }
-
         const formData = new FormData();
         formData.append("file", file);
 
