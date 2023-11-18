@@ -5,13 +5,11 @@ const FileUpload = ({ onFileSubmit }) => {
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
-        const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg"];
-
-        if (file && allowedTypes.includes(file.type)) {
+        if (file && file.type === "application/pdf") {
             setSelectedFile(file);
         } else {
             setSelectedFile(null);
-            alert("Please choose a valid PDF, JPG, or JPEG file.");
+            alert("Please choose a valid PDF file.");
         }
     };
 
@@ -25,7 +23,7 @@ const FileUpload = ({ onFileSubmit }) => {
 
     return (
         <>
-            <input type="file" accept=".pdf, .jpg, .jpeg" onChange={handleFileChange} />
+            <input type="file" accept=".pdf" onChange={handleFileChange} />
             <button onClick={handleFileSubmit}>Submit</button>
         </>
     );
