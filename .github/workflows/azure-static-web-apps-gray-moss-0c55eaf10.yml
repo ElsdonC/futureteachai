@@ -34,6 +34,7 @@ jobs:
         env:
           REACT_APP_DOCUMENT_INTELLIGENCE_ENDPOINT: ${{ secrets.REACT_APP_DOCUMENT_INTELLIGENCE_ENDPOINT }}
           REACT_APP_DOCUMENT_INTELLIGENCE_KEY: ${{ secrets.REACT_APP_DOCUMENT_INTELLIGENCE_KEY }}
+          REACT_APP_OPENAI_API_KEY: ${{ secrets.REACT_APP_OPENAI_API_KEY }}
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
