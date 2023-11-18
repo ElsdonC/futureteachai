@@ -89,6 +89,10 @@ function App() {
             if (response.ok) {
                 const result = await response.json();
                 setAnalysisResults(JSON.stringify(result));
+
+                // Extract and display "content" text
+                const contentText = result.analyzeResult.content;
+                console.log("Content Text:", contentText);
             } else {
                 console.error(
                     "Failed to fetch analysis result. HTTP status:",
@@ -101,6 +105,7 @@ function App() {
             setAnalyzing(false);
         }
     };
+
 
     return (
         <>
