@@ -13,7 +13,7 @@ function App() {
     const handleFileSubmit = async (file) => {
         const formData = new FormData();
         formData.append("file", file);
-
+    
         try {
             setLoading(true);
             const response = await fetch(
@@ -38,6 +38,7 @@ function App() {
             setLoading(false);
         }
     };
+    
 
     const analyze = async (documentUrl) => {
         try {
@@ -84,6 +85,10 @@ function App() {
             if (response.ok) {
                 const result = await response.json();
                 setAnalysisResults(JSON.stringify(result));
+
+                // Extract and display "content" text
+                const contentText = result.analyzeResult.content;
+                console.log("Content Text:", contentText);
             } else {
                 console.error(
                     "Failed to fetch analysis result. HTTP status:",
@@ -96,6 +101,7 @@ function App() {
             setAnalyzing(false);
         }
     };
+
 
     return (
         <>
