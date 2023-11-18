@@ -14,6 +14,29 @@ function App() {
     const key = process.env.REACT_APP_DOCUMENT_INTELLIGENCE_KEY;
     const modelID = "prebuilt-document";
 
+
+    const generatePdf = async (parsedQuestions) => {
+        try {
+            const response = await fetch('https://futureteachai.azurewebsites.net/api/MakePdf', {
+                method: 'POST',
+                body: JSON.stringify(parsedQuestions),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                window.open(url);
+            } else {
+                console.error('Failed to generate PDF. HTTP status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+        }
+    };
+    
     const handleFileSubmit = async (file) => {
         const formData = new FormData();
         formData.append("file", file);
@@ -98,6 +121,7 @@ const processWithOpenAI = async (contentText) => {
 
         // Do something with the generated questions
         console.log("Generated Questions:", generatedQuestions);
+        generatePdf(["1. What color is the sky?"]);
 
         return cleanedContentText;
     } catch (error) {
