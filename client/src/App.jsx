@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import FileUpload from "./components/FileUpload";
+import OpenAI from 'openai';
 
+    const openai_api = process.env.REACT_APP_OPENAI_API_KEY
+    const openai = new OpenAI({ apiKey: `${openai_api}`, dangerouslyAllowBrowser: true });
+    
 function App() {
     const [uploadStatus, setUploadStatus] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -11,16 +15,9 @@ function App() {
     const modelID = "prebuilt-document";
 
     const handleFileSubmit = async (file) => {
-        const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg"];
-    
-        if (!allowedTypes.includes(file.type)) {
-            setUploadStatus("Please upload a PDF, JPG, or JPEG file");
-            return;
-        }
-    
         const formData = new FormData();
         formData.append("file", file);
-    
+
         try {
             setLoading(true);
             const response = await fetch(
@@ -45,7 +42,6 @@ function App() {
             setLoading(false);
         }
     };
-    
 
     const analyze = async (documentUrl) => {
         try {
@@ -78,36 +74,74 @@ function App() {
         }
     };
 
-    const fetchAnalysisResult = async (resultId) => {
-        try {
-            const apiUrl = resultId;
-            const headers = new Headers();
-            headers.append("Ocp-Apim-Subscription-Key", key);
+ // Function to perform OpenAI processing
+const processWithOpenAI = async (contentText) => {
+    try {
+        // Preprocess the contentText to remove line breaks and special characters
+        const cleanedContentText = contentText.replace(/(\r\n|\n|\r)/gm, " ").replace(/[^a-zA-Z0-9\s]/g, "");
+        console.log("Cleaned Content Text:", cleanedContentText);
 
-            const response = await fetch(apiUrl, {
-                method: "GET",
-                headers: headers,
+        // Generate similar questions for each question
+        const questions = contentText.split(/\d+\./).filter(Boolean);
+        const generatedQuestions = await Promise.all(questions.map(async (question, index) => {
+            const openAIResponse = await openai.chat.completions.create({
+                model: "gpt-3.5-turbo",
+                messages: [
+                    { role: "system", content: "You're a teacher that's making new exam questions. Based on the concept being tested in this question, generate another question that tests the same concept" },
+                    { role: "user", content: question },
+                ],
+                temperature: 0.8,
             });
 
-            if (response.ok) {
-                const result = await response.json();
-                setAnalysisResults(JSON.stringify(result));
+            return openAIResponse.choices[0].message['content'];
+        }));
 
-                // Extract and display "content" text
-                const contentText = result.analyzeResult.content;
-                console.log("Content Text:", contentText);
-            } else {
-                console.error(
-                    "Failed to fetch analysis result. HTTP status:",
-                    response.status
-                );
-            }
-        } catch (error) {
-            console.error("Error analyzing file", error);
-        } finally {
-            setAnalyzing(false);
+        // Do something with the generated questions
+        console.log("Generated Questions:", generatedQuestions);
+
+        return cleanedContentText;
+    } catch (error) {
+        console.error("Error processing with OpenAI", error);
+        throw error;
+    }
+};
+
+// Modify your fetchAnalysisResult function
+const fetchAnalysisResult = async (resultId) => {
+    try {
+        const apiUrl = resultId;
+        const headers = new Headers();
+        headers.append("Ocp-Apim-Subscription-Key", key);
+
+        const response = await fetch(apiUrl, {
+            method: "GET",
+            headers: headers,
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+
+            // Extract and display "content" text
+            const contentText = result.analyzeResult.content;
+            console.log("Content Text:", contentText);
+
+            // Process with OpenAI
+            const processedResult = await processWithOpenAI(contentText);
+
+            // Set analysis results
+            setAnalysisResults(processedResult);
+        } else {
+            console.error(
+                "Failed to fetch analysis result. HTTP status:",
+                response.status
+            );
         }
-    };
+    } catch (error) {
+        console.error("Error analyzing file", error);
+    } finally {
+        setAnalyzing(false);
+    }
+};
 
 
     return (
